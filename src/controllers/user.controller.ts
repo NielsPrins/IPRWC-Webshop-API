@@ -3,9 +3,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { Connection, escape } from 'mysql';
 import ControllerBase from '../interfaces/controller.interface';
-import tokenManager from '../classes/tokenManager';
+import TokenManager from '../classes/tokenManager';
 import Server from '../server';
 import createId from '../classes/uid';
+import checkRecaptchaToken from '../classes/recaptcha';
 
 class UserController implements ControllerBase {
   public router = express.Router();
@@ -22,7 +23,7 @@ class UserController implements ControllerBase {
   public initRoutes() {
     this.router.get('/user/:id', this.getUser);
     this.router.post('/user/checkLogin', this.checkLogin);
-    this.router.put('/user/', this.createUser);
+    this.router.post('/user/', this.createUser);
     this.router.patch('/user/', this.updateUser);
     this.router.delete('/user/', this.deleteUser);
   }
@@ -37,9 +38,7 @@ class UserController implements ControllerBase {
   });
 
   getUser = async (req: Request, res: Response) => {
-    if (!await tokenManager.checkLoginToken(req, res, true)) {
-      return;
-    }
+    if (!await TokenManager.checkLoginToken(req, res, true)) return;
 
     const { id } = req.params;
 
@@ -55,13 +54,16 @@ class UserController implements ControllerBase {
   };
 
   checkLogin = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { email, password, token } = req.body;
+
+    if (!await checkRecaptchaToken(res, token)) return;
 
     if (typeof email === 'undefined' || typeof password === 'undefined') {
-      return res.status(500).send();
+      res.status(500).send();
+      return;
     }
 
-    return this.db.query(`SELECT * FROM ${this.table} WHERE email=${escape(email)};`, (err, result) => {
+    this.db.query(`SELECT * FROM ${this.table} WHERE email=${escape(email)};`, (err, result) => {
       if (err || result.length === 0) {
         return res.status(500).send();
       }
@@ -70,11 +72,11 @@ class UserController implements ControllerBase {
       return bcrypt.compare(password, result.password, async (error, login_result) => {
         if (login_result) {
           delete result.password;
-          const token = await tokenManager.createLoginToken(req, result);
+          const userToken = await TokenManager.createLoginToken(req, result);
 
           return res.status(200).json({
             login: 'success',
-            token,
+            token: userToken,
             result,
           });
         }
@@ -84,8 +86,12 @@ class UserController implements ControllerBase {
   };
 
   createUser = async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
+    const {
+      name, email, password, token,
+    } = req.body;
     const id = createId();
+
+    if (!await checkRecaptchaToken(res, token)) return;
 
     if (typeof name === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined') {
       res.status(500).send();
@@ -108,9 +114,7 @@ class UserController implements ControllerBase {
   };
 
   updateUser = async (req: Request, res: Response) => {
-    if (!await tokenManager.checkLoginToken(req, res, true)) {
-      return;
-    }
+    if (!await TokenManager.checkLoginToken(req, res, true)) return;
 
     const {
       id, name, email, password,
@@ -142,9 +146,7 @@ class UserController implements ControllerBase {
   };
 
   deleteUser = async (req: Request, res: Response) => {
-    if (!await tokenManager.checkLoginToken(req, res, true)) {
-      return;
-    }
+    if (!await TokenManager.checkLoginToken(req, res, true)) return;
 
     const { id } = req.body;
 

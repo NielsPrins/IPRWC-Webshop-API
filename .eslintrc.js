@@ -16,6 +16,7 @@ module.exports = {
         "class-methods-use-this": "off",
         "no-underscore-dangle": ["error", {"allowAfterThis": true}],
         "import/no-cycle": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "linebreak-style": ["error", "windows"]
     }
 };
