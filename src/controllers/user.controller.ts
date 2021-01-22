@@ -6,7 +6,8 @@ import ControllerBase from '../interfaces/controller.interface';
 import TokenManager from '../classes/tokenManager';
 import Server from '../server';
 import createId from '../classes/uid';
-import checkRecaptchaToken from '../classes/recaptcha';
+import adminAuthMiddleware from '../middleware/adminAuth.middleware';
+import recaptchaMiddleware from '../middleware/recaptha.middleware';
 
 class UserController implements ControllerBase {
   public router = express.Router();
@@ -21,11 +22,11 @@ class UserController implements ControllerBase {
   }
 
   public initRoutes() {
-    this.router.get('/user/:id', this.getUser);
-    this.router.post('/user/checkLogin', this.checkLogin);
-    this.router.post('/user/', this.createUser);
-    this.router.patch('/user/', this.updateUser);
-    this.router.delete('/user/', this.deleteUser);
+    this.router.get('/user/:id', adminAuthMiddleware, this.getUser);
+    this.router.post('/user/checkLogin', recaptchaMiddleware, this.checkLogin);
+    this.router.post('/user/', recaptchaMiddleware, this.createUser);
+    this.router.patch('/user/', adminAuthMiddleware, this.updateUser);
+    this.router.delete('/user/', adminAuthMiddleware, this.deleteUser);
   }
 
   hashPassword = async (password: string): Promise<string> => new Promise((resolve, reject) => {
@@ -38,8 +39,6 @@ class UserController implements ControllerBase {
   });
 
   getUser = async (req: Request, res: Response) => {
-    if (!await TokenManager.checkLoginToken(req, res, true)) return;
-
     const { id } = req.params;
 
     this.db.query(`SELECT id, name, email FROM ${this.table} WHERE id = ${escape(id)};`, (err, result) => {
@@ -55,8 +54,6 @@ class UserController implements ControllerBase {
 
   checkLogin = async (req: Request, res: Response) => {
     const { email, password, token } = req.body;
-
-    if (!await checkRecaptchaToken(res, token)) return;
 
     if (typeof email === 'undefined' || typeof password === 'undefined') {
       res.status(500).send();
@@ -87,11 +84,9 @@ class UserController implements ControllerBase {
 
   createUser = async (req: Request, res: Response) => {
     const {
-      name, email, password, token,
+      name, email, password,
     } = req.body;
     const id = createId();
-
-    if (!await checkRecaptchaToken(res, token)) return;
 
     if (typeof name === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined') {
       res.status(500).send();
@@ -114,8 +109,6 @@ class UserController implements ControllerBase {
   };
 
   updateUser = async (req: Request, res: Response) => {
-    if (!await TokenManager.checkLoginToken(req, res, true)) return;
-
     const {
       id, name, email, password,
     } = req.body;
@@ -146,8 +139,6 @@ class UserController implements ControllerBase {
   };
 
   deleteUser = async (req: Request, res: Response) => {
-    if (!await TokenManager.checkLoginToken(req, res, true)) return;
-
     const { id } = req.body;
 
     if (typeof id === 'undefined') {

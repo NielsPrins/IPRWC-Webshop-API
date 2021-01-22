@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { Connection, escape } from 'mysql';
 import hash from 'object-hash';
 import Server from '../server';
+import JwtToken from '../interfaces/jwt-token.interface';
 
 class TokenManager {
   public static secret: string = process.env.JWT_SECRET || 'zF5HtnU^ZoDgyW5^RF7ny6qxPY6srXGK56nbmUL6as&oF34eQ@';
@@ -25,37 +26,28 @@ class TokenManager {
     return jwt.sign({ ...userResult, ...{ fingerprint } }, TokenManager.secret, { expiresIn: '7d' });
   };
 
-  public static checkLoginToken = async (req: Request, res: Response, isAdmin = false) => new Promise((resolve, reject) => {
-    const authHeader = req.headers.authorization;
+  public static checkLoginToken = async (req: Request, isAdmin = false) => {
+    let token = req.header('authorization');
+    if (!token) return false;
+    token = token.replace(/^Bearer\s+/, '');
 
-    if (authHeader) {
-      const token = authHeader.split(' ')[1];
+    try {
+      const jwtToken: JwtToken = jwt.verify(token, TokenManager.secret) as JwtToken;
 
-      jwt.verify(token, TokenManager.secret, (err, decoded) => {
-        if (err || decoded == null || typeof decoded === 'undefined') return reject();
-        const jwtTokenData: any = decoded;
+      if (isAdmin && jwtToken.permission_group !== 'admin') {
+        return false;
+      }
 
-        if (isAdmin && jwtTokenData.permission_group != 'admin') {
-          return reject();
-        }
+      if (jwtToken.fingerprint !== TokenManager.getFingerprint(req)) {
+        return false;
+      }
 
-        if (jwtTokenData.fingerprint !== TokenManager.getFingerprint(req) && req.headers.host !== 'localhost:5000') {
-          reject();
-        }
-
-        const db: Connection = Server.getDatabase();
-        db.query(`SELECT * FROM user WHERE id=${escape(jwtTokenData.id)};`, (err, result) => {
-          if (err || result.length === 0) return reject();
-
-          resolve(true);
-        });
-      });
-    } else {
-      return reject();
+      const db: Connection = Server.getDatabase();
+      return db.query(`SELECT * FROM user WHERE id=${escape(jwtToken.id)};`, (err, result) => !(err || result.length === 0));
+    } catch (e) {
+      return false;
     }
-  }).catch(() => {
-    res.status(401).send();
-  });
+  };
 }
 
 export default TokenManager;
