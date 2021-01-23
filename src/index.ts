@@ -5,6 +5,15 @@ import Server from './server';
 import 'reflect-metadata';
 import UserController from './controllers/user.controller';
 import ProductController from './controllers/product.controller';
+import User from './interfaces/user.interface';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: User
+    }
+  }
+}
 
 dotenv.config();
 

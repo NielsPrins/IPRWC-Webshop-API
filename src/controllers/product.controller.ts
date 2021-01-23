@@ -27,7 +27,7 @@ class ProductController implements ControllerBase {
     this.router.delete('/product/', adminAuthMiddleware, this.deleteProduct);
   }
 
-  getProduct = async (req: Request, res: Response) => {
+  public getProduct = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     this.db.query(`SELECT * FROM ${this.table} WHERE id = ${escape(id)};`, (err, result) => {
@@ -41,7 +41,7 @@ class ProductController implements ControllerBase {
     });
   };
 
-  getProducts = async (req: Request, res: Response) => {
+  public getProducts = async (req: Request, res: Response) => {
     this.db.query(`SELECT * FROM ${this.table};`, (err, result) => {
       if (err || result.length === 0) {
         return res.status(500).send();
@@ -51,7 +51,7 @@ class ProductController implements ControllerBase {
     });
   };
 
-  createProduct = async (req: Request, res: Response) => {
+  public createProduct = async (req: Request, res: Response) => {
     const { title, description, image, price } = req.body;
     const id = createId();
 
@@ -68,7 +68,7 @@ class ProductController implements ControllerBase {
     });
   };
 
-  updateProduct = async (req: Request, res: Response) => {
+  public updateProduct = async (req: Request, res: Response) => {
     const { id, title, description, image, price } = req.body;
     const updateStatements: string[] = [];
 
@@ -98,7 +98,7 @@ class ProductController implements ControllerBase {
     });
   };
 
-  deleteProduct = async (req: Request, res: Response) => {
+  public deleteProduct = async (req: Request, res: Response) => {
     const { id } = req.body;
 
     if (!varIsSet(id)) {

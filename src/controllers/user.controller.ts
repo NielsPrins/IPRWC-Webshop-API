@@ -30,7 +30,7 @@ class UserController implements ControllerBase {
     this.router.delete('/user/', adminAuthMiddleware, this.deleteUser);
   }
 
-  hashPassword = async (password: string): Promise<string> => new Promise((resolve, reject) => {
+  public hashPassword = async (password: string): Promise<string> => new Promise((resolve, reject) => {
     bcrypt.hash(password, 7, (err, hash) => {
       if (err) {
         reject(err);
@@ -39,7 +39,7 @@ class UserController implements ControllerBase {
     });
   });
 
-  getUser = async (req: Request, res: Response) => {
+  public getUser = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     this.db.query(`SELECT id, name, email FROM ${this.table} WHERE id = ${escape(id)};`, (err, result) => {
@@ -53,7 +53,7 @@ class UserController implements ControllerBase {
     });
   };
 
-  checkLogin = async (req: Request, res: Response) => {
+  public checkLogin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!varIsSet([email, password])) {
@@ -83,7 +83,7 @@ class UserController implements ControllerBase {
     });
   };
 
-  createUser = async (req: Request, res: Response) => {
+  public createUser = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
     const id = createId();
 
@@ -102,7 +102,7 @@ class UserController implements ControllerBase {
     });
   };
 
-  updateUser = async (req: Request, res: Response) => {
+  public updateUser = async (req: Request, res: Response) => {
     const {
       id, name, email, password,
     } = req.body;
@@ -132,7 +132,7 @@ class UserController implements ControllerBase {
     });
   };
 
-  deleteUser = async (req: Request, res: Response) => {
+  public deleteUser = async (req: Request, res: Response) => {
     const { id } = req.body;
 
     if (!varIsSet(id)) {

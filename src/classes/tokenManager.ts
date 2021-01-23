@@ -43,7 +43,13 @@ class TokenManager {
       }
 
       const db: Connection = Server.getDatabase();
-      return db.query(`SELECT * FROM user WHERE id=${escape(jwtToken.id)};`, (err, result) => !(err || result.length === 0));
+      return db.query(`SELECT id, name, email, permission_group FROM user WHERE id=${escape(jwtToken.id)};`, (err, result) => {
+        if (err || result.length === 0) return false;
+
+        [req.user] = result;
+
+        return true;
+      });
     } catch (e) {
       return false;
     }
