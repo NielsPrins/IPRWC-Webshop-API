@@ -8,6 +8,7 @@ import Server from '../server';
 import createId from '../classes/uid';
 import adminAuthMiddleware from '../middleware/adminAuth.middleware';
 import recaptchaMiddleware from '../middleware/recaptha.middleware';
+import varIsSet from '../classes/var-is-set';
 
 class UserController implements ControllerBase {
   public router = express.Router();
@@ -53,9 +54,9 @@ class UserController implements ControllerBase {
   };
 
   checkLogin = async (req: Request, res: Response) => {
-    const { email, password, token } = req.body;
+    const { email, password } = req.body;
 
-    if (typeof email === 'undefined' || typeof password === 'undefined') {
+    if (!varIsSet([email, password])) {
       res.status(500).send();
       return;
     }
@@ -83,17 +84,10 @@ class UserController implements ControllerBase {
   };
 
   createUser = async (req: Request, res: Response) => {
-    const {
-      name, email, password,
-    } = req.body;
+    const { name, email, password } = req.body;
     const id = createId();
 
-    if (typeof name === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined') {
-      res.status(500).send();
-      return;
-    }
-
-    if (name === '' || email === '' || password === '') {
+    if (!varIsSet([name, email, password])) {
       res.status(500).send();
       return;
     }
@@ -114,18 +108,18 @@ class UserController implements ControllerBase {
     } = req.body;
     const updateStatements: string[] = [];
 
-    if (typeof id === 'undefined' || id === '') {
+    if (!varIsSet(id)) {
       res.status(500).send();
       return;
     }
 
-    if (typeof name !== 'undefined' && name !== '') {
+    if (varIsSet(name)) {
       updateStatements.push(`name = ${escape(name)}`);
     }
-    if (typeof email !== 'undefined' && email !== '') {
+    if (varIsSet(email)) {
       updateStatements.push(`email = ${escape(email)}`);
     }
-    if (typeof password !== 'undefined' && password !== '') {
+    if (varIsSet(password)) {
       const passwordHash = await this.hashPassword(password);
       updateStatements.push(`password = ${escape(passwordHash)}`);
     }
@@ -141,7 +135,7 @@ class UserController implements ControllerBase {
   deleteUser = async (req: Request, res: Response) => {
     const { id } = req.body;
 
-    if (typeof id === 'undefined') {
+    if (!varIsSet(id)) {
       res.status(500).send();
       return;
     }

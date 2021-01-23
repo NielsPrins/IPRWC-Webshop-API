@@ -17,6 +17,7 @@ module.exports = {
         "no-underscore-dangle": ["error", {"allowAfterThis": true}],
         "import/no-cycle": "off",
         "no-param-reassign": "off",
-        "linebreak-style": ["error", "windows"]
+        "linebreak-style": ["error", "windows"],
+        "object-curly-newline": "off"
     }
 };

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Server from './server';
 import 'reflect-metadata';
 import UserController from './controllers/user.controller';
+import ProductController from './controllers/product.controller';
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = new Server({
   port: 5000,
   controllers: [
     UserController,
-    // ProductController,
+    ProductController,
     // OrderController,
   ],
   middleWares: [
