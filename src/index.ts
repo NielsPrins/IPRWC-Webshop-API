@@ -6,6 +6,7 @@ import 'reflect-metadata';
 import UserController from './controllers/user.controller';
 import ProductController from './controllers/product.controller';
 import User from './interfaces/user.interface';
+import OrderController from './controllers/order.controller';
 
 declare global {
   namespace Express {
@@ -22,7 +23,7 @@ const app = new Server({
   controllers: [
     UserController,
     ProductController,
-    // OrderController,
+    OrderController,
   ],
   middleWares: [
     bodyParser.json(),

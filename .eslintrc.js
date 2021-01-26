@@ -18,6 +18,6 @@ module.exports = {
         "import/no-cycle": "off",
         "no-param-reassign": "off",
         "linebreak-style": ["error", "windows"],
-        "object-curly-newline": "off"
+        "object-curly-newline": "off",
     }
 };

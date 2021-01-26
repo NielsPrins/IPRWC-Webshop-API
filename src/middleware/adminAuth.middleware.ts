@@ -5,7 +5,7 @@ const adminAuthMiddleware = async (req: Request, res: Response, next: any) => {
   if (await TokenManager.checkLoginToken(req, true)) {
     next();
   } else {
-    res.status(401).json('Invalid Token');
+    res.status(401).json('Invalid Admin Token');
   }
 };
 

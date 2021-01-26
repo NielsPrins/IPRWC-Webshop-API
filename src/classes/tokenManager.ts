@@ -26,16 +26,16 @@ class TokenManager {
     return jwt.sign({ ...userResult, ...{ fingerprint } }, TokenManager.secret, { expiresIn: '7d' });
   };
 
-  public static checkLoginToken = async (req: Request, isAdmin = false) => {
+  public static checkLoginToken = (req: Request, isAdmin = false) => new Promise((resolve) => {
     let token = req.header('authorization');
-    if (!token) return false;
+    if (!token) return resolve(false);
     token = token.replace(/^Bearer\s+/, '');
 
     try {
       const jwtToken: JwtToken = jwt.verify(token, TokenManager.secret) as JwtToken;
 
       if (isAdmin && jwtToken.permission_group !== 'admin') {
-        return false;
+        return resolve(false);
       }
 
       if (jwtToken.fingerprint !== TokenManager.getFingerprint(req)) {
@@ -44,16 +44,15 @@ class TokenManager {
 
       const db: Connection = Server.getDatabase();
       return db.query(`SELECT id, name, email, permission_group FROM user WHERE id=${escape(jwtToken.id)};`, (err, result) => {
-        if (err || result.length === 0) return false;
+        if (err || result.length === 0) return resolve(false);
 
         [req.user] = result;
-
-        return true;
+        return resolve(true);
       });
     } catch (e) {
-      return false;
+      return resolve(false);
     }
-  };
+  });
 }
 
 export default TokenManager;
