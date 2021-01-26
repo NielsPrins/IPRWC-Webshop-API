@@ -23,6 +23,7 @@ class OrderController implements ControllerBase {
   public initRoutes() {
     this.router.get('/order/:id', userAuthMiddleware, this.getOrder);
     this.router.get('/order/', userAuthMiddleware, this.getOrders);
+    this.router.get('/allOrders/', adminAuthMiddleware, this.getAllOrders);
     this.router.post('/order/', userAuthMiddleware, this.createOrder);
     this.router.patch('/order/', adminAuthMiddleware, this.updateOrder);
     this.router.delete('/order/', adminAuthMiddleware, this.deleteOrder);
@@ -53,12 +54,44 @@ class OrderController implements ControllerBase {
   };
 
   getOrders = async (req: Request, res: Response) => {
-    this.db.query(`SELECT * FROM ${this.table} WHERE user_id = ${escape(req.user.id)};`, async (err, result) => {
+    this.db.query(`SELECT * FROM ${this.table} WHERE user_id = ${escape(req.user.id)} ORDER BY date DESC;`, async (err, result) => {
       if (err || result.length === 0) {
         return res.status(500).send();
       }
 
       for (const order of result) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          this.db.query(`SELECT * FROM product INNER JOIN order_line ON (product.id = product_id) WHERE order_id = ${escape(order.id)};`, async (productErr, productResult) => {
+            if (!productErr) {
+              order.products = productResult;
+            }
+            resolve(true);
+          });
+        });
+      }
+
+      return res.status(200).json({ result });
+    });
+  };
+
+  getAllOrders = async (req: Request, res: Response) => {
+    this.db.query(`SELECT * FROM ${this.table} ORDER BY date DESC;`, async (err, result) => {
+      if (err || result.length === 0) {
+        return res.status(500).send();
+      }
+
+      for (const order of result) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          this.db.query(`SELECT id, name, email, permission_group FROM user WHERE id = ${escape(order.user_id)};`, async (userErr, userResult) => {
+            if (!userErr) {
+              [order.user] = userResult;
+            }
+            resolve(true);
+          });
+        });
+
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
           this.db.query(`SELECT * FROM product INNER JOIN order_line ON (product.id = product_id) WHERE order_id = ${escape(order.id)};`, async (productErr, productResult) => {

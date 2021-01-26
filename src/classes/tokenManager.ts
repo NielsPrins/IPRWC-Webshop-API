@@ -39,7 +39,7 @@ class TokenManager {
       }
 
       if (jwtToken.fingerprint !== TokenManager.getFingerprint(req)) {
-        return false;
+        return resolve(false);
       }
 
       const db: Connection = Server.getDatabase();
