@@ -31,21 +31,43 @@ class OrderController implements ControllerBase {
   getOrder = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    this.db.query(`SELECT * FROM ${this.table} WHERE id = ${escape(id)} AND user_id = ${escape(req.user.id)};`, (err, result) => {
+    this.db.query(`SELECT * FROM ${this.table} WHERE id = ${escape(id)} AND user_id = ${escape(req.user.id)};`, async (err, result) => {
       if (err || result.length === 0) {
         return res.status(500).send();
       }
+      const [order] = result;
+
+      await new Promise((resolve) => {
+        this.db.query(`SELECT * FROM product INNER JOIN order_line ON (product.id = product_id) WHERE order_id = ${escape(order.id)};`, async (productErr, productResult) => {
+          if (!productErr) {
+            order.products = productResult;
+          }
+          resolve(true);
+        });
+      });
 
       return res.status(200).json({
-        result: result[0],
+        result: order,
       });
     });
   };
 
   getOrders = async (req: Request, res: Response) => {
-    this.db.query(`SELECT * FROM ${this.table} WHERE user_id = ${escape(req.user.id)};`, (err, result) => {
+    this.db.query(`SELECT * FROM ${this.table} WHERE user_id = ${escape(req.user.id)};`, async (err, result) => {
       if (err || result.length === 0) {
         return res.status(500).send();
+      }
+
+      for (const order of result) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          this.db.query(`SELECT * FROM product INNER JOIN order_line ON (product.id = product_id) WHERE order_id = ${escape(order.id)};`, async (productErr, productResult) => {
+            if (!productErr) {
+              order.products = productResult;
+            }
+            resolve(true);
+          });
+        });
       }
 
       return res.status(200).json({ result });
