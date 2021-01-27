@@ -23,6 +23,7 @@ class UserController implements ControllerBase {
   }
 
   public initRoutes() {
+    this.router.get('/user/isAdmin', adminAuthMiddleware, this.getIsAdmin);
     this.router.get('/user/:id', adminAuthMiddleware, this.getUser);
     this.router.post('/user/checkLogin', recaptchaMiddleware, this.checkLogin);
     this.router.post('/user/', recaptchaMiddleware, this.createUser);
@@ -44,7 +45,7 @@ class UserController implements ControllerBase {
 
     this.db.query(`SELECT id, name, email FROM ${this.table} WHERE id = ${escape(id)};`, (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
 
       return res.status(200).json({
@@ -52,6 +53,8 @@ class UserController implements ControllerBase {
       });
     });
   };
+
+  public getIsAdmin = async (req: Request, res: Response) => res.status(200).json({ result: true });
 
   public checkLogin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -63,7 +66,7 @@ class UserController implements ControllerBase {
 
     this.db.query(`SELECT * FROM ${this.table} WHERE email=${escape(email)};`, (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
       [result] = result;
 

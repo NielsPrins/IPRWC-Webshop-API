@@ -34,7 +34,7 @@ class OrderController implements ControllerBase {
 
     this.db.query(`SELECT * FROM ${this.table} WHERE id = ${escape(id)} AND user_id = ${escape(req.user.id)};`, async (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
       const [order] = result;
 
@@ -56,7 +56,7 @@ class OrderController implements ControllerBase {
   getOrders = async (req: Request, res: Response) => {
     this.db.query(`SELECT * FROM ${this.table} WHERE user_id = ${escape(req.user.id)} ORDER BY date DESC;`, async (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
 
       for (const order of result) {
@@ -78,7 +78,7 @@ class OrderController implements ControllerBase {
   getAllOrders = async (req: Request, res: Response) => {
     this.db.query(`SELECT * FROM ${this.table} ORDER BY date DESC;`, async (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
 
       for (const order of result) {

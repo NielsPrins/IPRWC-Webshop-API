@@ -32,7 +32,7 @@ class ProductController implements ControllerBase {
 
     this.db.query(`SELECT * FROM ${this.table} WHERE id = ${escape(id)};`, (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
 
       return res.status(200).json({
@@ -44,7 +44,7 @@ class ProductController implements ControllerBase {
   public getProducts = async (req: Request, res: Response) => {
     this.db.query(`SELECT * FROM ${this.table};`, (err, result) => {
       if (err || result.length === 0) {
-        return res.status(500).send();
+        return res.status(204).send();
       }
 
       return res.status(200).json({ result });
