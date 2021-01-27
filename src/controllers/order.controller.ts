@@ -26,7 +26,7 @@ class OrderController implements ControllerBase {
     this.router.get('/allOrders/', adminAuthMiddleware, this.getAllOrders);
     this.router.post('/order/', userAuthMiddleware, this.createOrder);
     this.router.patch('/order/', adminAuthMiddleware, this.updateOrder);
-    this.router.delete('/order/', adminAuthMiddleware, this.deleteOrder);
+    this.router.delete('/order/:id', adminAuthMiddleware, this.deleteOrder);
   }
 
   getOrder = async (req: Request, res: Response) => {
@@ -154,7 +154,7 @@ class OrderController implements ControllerBase {
   };
 
   deleteOrder = async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!varIsSet(id)) {
       res.status(500).send();

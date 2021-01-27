@@ -27,7 +27,7 @@ class UserController implements ControllerBase {
     this.router.post('/user/checkLogin', recaptchaMiddleware, this.checkLogin);
     this.router.post('/user/', recaptchaMiddleware, this.createUser);
     this.router.patch('/user/', adminAuthMiddleware, this.updateUser);
-    this.router.delete('/user/', adminAuthMiddleware, this.deleteUser);
+    this.router.delete('/user/:id', adminAuthMiddleware, this.deleteUser);
   }
 
   public hashPassword = async (password: string): Promise<string> => new Promise((resolve, reject) => {
@@ -133,7 +133,7 @@ class UserController implements ControllerBase {
   };
 
   public deleteUser = async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!varIsSet(id)) {
       res.status(500).send();

@@ -24,7 +24,7 @@ class ProductController implements ControllerBase {
     this.router.get('/product/', this.getProducts);
     this.router.post('/product/', adminAuthMiddleware, this.createProduct);
     this.router.patch('/product/', adminAuthMiddleware, this.updateProduct);
-    this.router.delete('/product/', adminAuthMiddleware, this.deleteProduct);
+    this.router.delete('/product/:id', adminAuthMiddleware, this.deleteProduct);
   }
 
   public getProduct = async (req: Request, res: Response) => {
@@ -99,7 +99,7 @@ class ProductController implements ControllerBase {
   };
 
   public deleteProduct = async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!varIsSet(id)) {
       res.status(500).send();
