@@ -6,8 +6,6 @@ import Server from '../server';
 import JwtToken from '../interfaces/jwt-token.interface';
 
 class TokenManager {
-  public static secret: string = process.env.JWT_SECRET || 'zF5HtnU^ZoDgyW5^RF7ny6qxPY6srXGK56nbmUL6as&oF34eQ@';
-
   private static getFingerprint = (req: Request) => {
     const fingerprint = {
       user_agent: req.headers['user-agent'],
@@ -23,7 +21,12 @@ class TokenManager {
   public static createLoginToken = async (req: Request, userResult: any) => {
     const fingerprint = TokenManager.getFingerprint(req);
 
-    return jwt.sign({ ...userResult, ...{ fingerprint } }, TokenManager.secret, { expiresIn: '7d' });
+    const secret: string | undefined = process.env.JWT_SECRET;
+    if (secret === undefined) {
+      throw new Error('JWT_SECRET must be provided!');
+    }
+
+    return jwt.sign({ ...userResult, ...{ fingerprint } }, secret, { expiresIn: '7d' });
   };
 
   public static checkLoginToken = (req: Request, isAdmin = false) => new Promise((resolve) => {
@@ -31,8 +34,13 @@ class TokenManager {
     if (!token) return resolve(false);
     token = token.replace(/^Bearer\s+/, '');
 
+    const secret: string | undefined = process.env.JWT_SECRET;
+    if (secret === undefined) {
+      throw new Error('JWT_SECRET must be provided!');
+    }
+
     try {
-      const jwtToken: JwtToken = jwt.verify(token, TokenManager.secret) as JwtToken;
+      const jwtToken: JwtToken = jwt.verify(token, secret) as JwtToken;
 
       if (isAdmin && jwtToken.permission_group !== 'admin') {
         return resolve(false);
