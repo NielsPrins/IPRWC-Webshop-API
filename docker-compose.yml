@@ -7,7 +7,6 @@ services:
     container_name: iprwc-database
     restart: unless-stopped
     ports:
-      - "3306:3306"
     env_file: .env
 
   iprwc-api:
@@ -16,8 +15,6 @@ services:
     depends_on:
       - iprwc-database
     restart: unless-stopped
-    ports:
-      - "5000:5000"
 
 networks:
   default:
