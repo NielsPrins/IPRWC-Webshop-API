@@ -6,7 +6,6 @@ services:
       dockerfile: Dockerfile
     container_name: iprwc-database
     restart: unless-stopped
-    ports:
     env_file: .env
 
   iprwc-api:
