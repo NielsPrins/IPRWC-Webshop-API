@@ -11,6 +11,8 @@ services:
   iprwc-api:
     build: .
     container_name: iprwc-api
+    depends_on:
+      - iprwc-database
     restart: unless-stopped
     ports:
       - "5000:5000"
