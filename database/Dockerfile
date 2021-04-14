@@ -1,3 +1,3 @@
 FROM mariadb
 
-COPY ./database.sql /docker-entrypoint-initdb.d/database.sql
+COPY iprwc-webshop.sql /docker-entrypoint-initdb.d/iprwc-webshop.sql
