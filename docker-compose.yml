@@ -1,19 +1,18 @@
 version: '3.8'
 services:
-  db:
+  iprwc-database:
     image: mariadb
     container_name: iprwc-database
     restart: unless-stopped
     ports:
       - "3306:3306"
-    env_file: .env
 
-  backend:
+  iprwc-api:
     build: .
     container_name: iprwc-api
     restart: unless-stopped
     ports:
-      - "5500:5500"
+      - "5000:5000"
     env_file: .env
 
 networks:
