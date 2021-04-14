@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  db:
+    image: mariadb
+    container_name: iprwc-database
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    env_file: .env
+
+  backend:
+    build: .
+    container_name: iprwc-api
+    restart: unless-stopped
+    ports:
+      - "5500:5500"
+    env_file: .env
+
+networks:
+  default:
+    external:
+      name: main
