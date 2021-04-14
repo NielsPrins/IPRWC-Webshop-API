@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Dumping data for table iprwc_webshop.user: ~1 rows (approximately)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` (`id`, `name`, `email`, `password`, `permission_group`) VALUES
-	('0ZWEZ_C0AX', 'Niels', 's1120245@student.hsleiden.nl', '$2a$07$KNM6ipEKttADb/HzzpHyseCNKARYHYDyQN5NcANqUBGC.azyH4iVq', 'customer'),
-	('Vgf_BuORBV', 'Niels Prins', 'niels123.prins@gmail.com', '$2a$07$KNM6ipEKttADb/HzzpHyseCNKARYHYDyQN5NcANqUBGC.azyH4iVq', 'admin');
+	('0ZWEZ_C0AX', 'Niels', 's1120245@student.hsleiden.nl', '$2a$07$5ipz6wkOeoEwXI2Yg/2Hoe7ohrv921ms2CllPk/PDEcEUkEJThT7a', 'customer'),
+	('Vgf_BuORBV', 'Niels Prins', 'niels123.prins@gmail.com', '$2a$07$5ipz6wkOeoEwXI2Yg/2Hoe7ohrv921ms2CllPk/PDEcEUkEJThT7a', 'admin');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
