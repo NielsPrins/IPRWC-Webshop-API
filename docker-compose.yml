@@ -1,7 +1,9 @@
 version: '3.3'
 services:
   iprwc-database:
-    image: mariadb
+    build:
+      context: ./database
+      dockerfile: Dockerfile
     container_name: iprwc-database
     restart: unless-stopped
     ports:
